@@ -32,7 +32,7 @@ def create_input_data(
         code = row["КОД"]
 
         sellers = []
-        for i in range(1, 5):
+        for i in range(1, 6):
             seller = row[f"ПРОДАВЕЦ{i}"]
             quantity = row[f"НАЛ.{i}"]
 
@@ -74,14 +74,17 @@ def _load_data() -> Tuple[List[Dict], Dict, Dict, Dict]:
     with open(f"{TEMP_DIR_NAME}/quattro.json") as file:
         quattro = json.load(file)
 
-    return input_f, vag, savat, bestparts, quattro
+    with open(f"{TEMP_DIR_NAME}/autovag.json") as file:
+        autovag = json.load(file)
+
+    return input_f, vag, savat, bestparts, quattro, autovag
 
 
 def merge_changes() -> List[Dict]:
     """
     Объединяет изменения в один файл и возвращает его
     """
-    input_f, vag, savat, bestparts, quattro = _load_data()
+    input_f, vag, savat, bestparts, quattro, autovag = _load_data()
 
     output = []
 
@@ -93,6 +96,7 @@ def merge_changes() -> List[Dict]:
         sellers[1] = check_seller(sellers[1], savat.get(code), "Savat-auto")
         sellers[2] = check_seller(sellers[2], bestparts.get(code), "Bestparts BPK")
         sellers[3] = check_seller(sellers[3], quattro.get(code), "Quatro")
+        sellers[4] = check_seller(sellers[4], autovag.get(code), "AutoVag")
 
         item["sellers"] = sellers
 
@@ -151,6 +155,8 @@ def collect_data_frame(output) -> pd.DataFrame:
     quantities3 = []
     sellers4 = []
     quantities4 = []
+    sellers5 = []
+    quantities5 = []
 
     for item in output:
         producers.append(item["producer"])
@@ -163,6 +169,8 @@ def collect_data_frame(output) -> pd.DataFrame:
         quantities3.append(item["sellers"][2]["quantity"])
         sellers4.append(item["sellers"][3]["seller"])
         quantities4.append(item["sellers"][3]["quantity"])
+        sellers5.append(item["sellers"][4]["seller"])
+        quantities5.append(item["sellers"][4]["quantity"])
 
     df_output = pd.DataFrame(
         {
@@ -176,6 +184,8 @@ def collect_data_frame(output) -> pd.DataFrame:
             "НАЛ.3": quantities3,
             "ПРОДАВЕЦ4": sellers4,
             "НАЛ.4": quantities4,
+            "ПРОДАВЕЦ5": sellers5,
+            "НАЛ.5": quantities5,
         }
     )
 
@@ -187,7 +197,7 @@ def sheet_styler(sheet, sheet_len):
     Стилизирует страницу
     """
     for cell_index in range(2, sheet_len + 2):
-        for cell_name in ["C", "D", "E", "F", "G", "H", "I", "J"]:
+        for cell_name in ["C", "D", "E", "F", "G", "H", "I", "J", "K", "L"]:
             for (cell,) in sheet[f"{cell_name}{cell_index}:{cell_name}{cell_index}"]:
                 cell_value = str(cell.value)
 
@@ -215,9 +225,9 @@ def excel_justify(worksheet):
     for column_cells in worksheet.columns:
         length = max(len(str(cell.value)) for cell in column_cells)
         adjusted_width = (length + 2) * 1.2
-        worksheet.column_dimensions[
-            column_cells[0].column_letter
-        ].width = adjusted_width
+        worksheet.column_dimensions[column_cells[0].column_letter].width = (
+            adjusted_width
+        )
 
 
 def collect_excel_file():

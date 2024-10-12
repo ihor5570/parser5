@@ -17,7 +17,9 @@ class VagSpider(scrapy.Spider):
             producer = data["producer"]
             url = f"{self.start_urls[0]}catalog-s-search-{code}"
 
-            yield scrapy.Request(url, meta={"code": code, "producer": producer, "index": index})
+            yield scrapy.Request(
+                url, meta={"code": code, "producer": producer, "index": index}
+            )
 
     def parse(self, response):
         code = response.meta["code"]
@@ -40,7 +42,10 @@ class VagSpider(scrapy.Spider):
                 if "В наявності" in availability:
                     item_quantity = item.css(".in-stock::text").get()
                     quantity = re.search(r"\d+", item_quantity).group()
-                    self.logger.info("Item[%s] code %s is in stock with %s quantity" % (index, code, quantity))
+                    self.logger.info(
+                        "Item[%s] code %s is in stock with %s quantity"
+                        % (index, code, quantity)
+                    )
                     yield {
                         "code": code,
                         "producer": producer,
@@ -49,7 +54,10 @@ class VagSpider(scrapy.Spider):
                     }
                     break
                 else:
-                    self.logger.info("Item[%s] code %s is in stock with %s quantity" % (index, code, 0))
+                    self.logger.info(
+                        "Item[%s] code %s is in stock with %s quantity"
+                        % (index, code, 0)
+                    )
                     yield {
                         "code": code,
                         "producer": producer,

@@ -10,6 +10,13 @@ class SavatSpider(scrapy.Spider):
     allowed_domains = ["savat-auto.com.ua"]
     start_urls = ["http://savat-auto.com.ua/search/"]
 
+    custom_settings = {
+        "DOWNLOADER_MIDDLEWARES": {
+            "comparison.middlewares.ProxyMiddleware": 610,
+        },
+        "RETRY_TIMES": 20,
+    }
+
     def start_requests(self):
         input_data = load_input_data()
         for index, data in enumerate(input_data, 1):
@@ -44,7 +51,10 @@ class SavatSpider(scrapy.Spider):
                 if "у наявності" in availability:
                     item_quantity = item.css('[aria-label="Наявність (шт)"]').get()
                     quantity = re.search(r"\d+", item_quantity).group()
-                    self.logger.info("Item[%s] code %s is in stock with %s quantity" % (index, code, quantity))
+                    self.logger.info(
+                        "Item[%s] code %s is in stock with %s quantity"
+                        % (index, code, quantity)
+                    )
                     yield {
                         "code": code,
                         "producer": producer,
@@ -53,7 +63,10 @@ class SavatSpider(scrapy.Spider):
                     }
                     break
                 else:
-                    self.logger.info("Item[%s] code %s is in stock with %s quantity" % (index, code, 0))
+                    self.logger.info(
+                        "Item[%s] code %s is in stock with %s quantity"
+                        % (index, code, 0)
+                    )
                     yield {
                         "code": code,
                         "producer": producer,

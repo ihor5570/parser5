@@ -8,8 +8,9 @@ def delete_temp_files():
         file_names = os.listdir(TEMP_DIR_NAME)
 
         for file in file_names:
-            full_path = os.path.join(TEMP_DIR_NAME, file)
-            delete_old_file_if_exist(full_path)
+            if file.endswith(".json"):
+                full_path = os.path.join(TEMP_DIR_NAME, file)
+                delete_old_file_if_exist(full_path)
 
 
 def delete_old_file_if_exist(path):

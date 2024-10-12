@@ -1,6 +1,6 @@
 from datetime import datetime
-from urllib.parse import urljoin, urlencode
 from typing import Any
+from urllib.parse import urlencode, urljoin
 
 import scrapy
 
@@ -24,14 +24,12 @@ class QuattroSpider(scrapy.Spider):
         for index, data in enumerate(self.input_data, 1):
             code = data["code"]
             producer = data["producer"]
-            params = {
-                "q": code
-            }
+            params = {"q": code}
             url = urljoin(self.start_urls[0], "?" + urlencode(params))
             yield scrapy.Request(
                 url,
                 errback=self.error_418_restart,
-                cb_kwargs={"code": code, "producer": producer, "index": index}
+                cb_kwargs={"code": code, "producer": producer, "index": index},
             )
 
     def parse(self, response, code, producer, index):
@@ -57,19 +55,26 @@ class QuattroSpider(scrapy.Spider):
             if available_product:
                 available_product_str = available_product.get()
                 if "__grayscale" not in available_product_str:
-                    available_product_uri = available_product.css(".catalogCard-title > a").attrib["href"]
-                    available_product_url = urljoin(self.base_domain, available_product_uri)
+                    available_product_uri = available_product.css(
+                        ".catalogCard-title > a"
+                    ).attrib["href"]
+                    available_product_url = urljoin(
+                        self.base_domain, available_product_uri
+                    )
 
                     yield scrapy.Request(
                         url=available_product_url,
                         callback=self.parse_item,
                         errback=self.error_418_restart,
                         dont_filter=True,
-                        cb_kwargs={"code": code, "producer": producer, "index": index}
+                        cb_kwargs={"code": code, "producer": producer, "index": index},
                     )
 
                 else:
-                    self.logger.info("Item[%s] code %s is in stock with %s quantity" % (index, code, 0))
+                    self.logger.info(
+                        "Item[%s] code %s is in stock with %s quantity"
+                        % (index, code, 0)
+                    )
                     yield {
                         "code": code,
                         "producer": producer,
@@ -86,18 +91,20 @@ class QuattroSpider(scrapy.Spider):
                 }
 
     def parse_item(self, response, code, producer, index):
-        product_purchase = int(response.css(
-            'meta[property="product:purchase_limit"]'
-        ).attrib["content"])
+        product_purchase = int(
+            response.css('meta[property="product:purchase_limit"]').attrib["content"]
+        )
 
-        self.logger.info("Item[%s] code %s is in stock with %s quantity" % (index, code, product_purchase))
+        self.logger.info(
+            "Item[%s] code %s is in stock with %s quantity"
+            % (index, code, product_purchase)
+        )
         yield {
             "code": code,
             "producer": producer,
             "quantity": product_purchase,
             "is_available": True,
         }
-
 
     def error_418_restart(self, failure):
         request = failure.request

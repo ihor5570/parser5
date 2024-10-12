@@ -11,6 +11,10 @@ CONCURRENT_REQUESTS = 16
 
 DOWNLOAD_DELAY = 0
 
+PROXY_URL = (
+    "http://brd-customer-hl_5346c4a6-zone-static:hk6mkiu8efir@brd.superproxy.io:22225"
+)
+
 ITEM_PIPELINES = {
     "comparison.pipelines.ComparisonPipeline": 300,
 }

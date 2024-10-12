@@ -1,10 +1,11 @@
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
+from comparison.spiders.autovag import AutovagSpider
 from comparison.spiders.bestparts import BestpartsSpider
+from comparison.spiders.quattro import QuattroSpider
 from comparison.spiders.savat import SavatSpider
 from comparison.spiders.vag import VagSpider
-from comparison.spiders.quattro import QuattroSpider
 
 
 def start_scraping() -> None:
@@ -18,5 +19,6 @@ def start_scraping() -> None:
     process.crawl(SavatSpider)
     process.crawl(VagSpider)
     process.crawl(QuattroSpider)
+    process.crawl(AutovagSpider)
 
     process.start()

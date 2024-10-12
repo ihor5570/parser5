@@ -55,7 +55,9 @@ class BestpartsSpider(scrapy.Spider):
                     dont_filter=True,
                 )
             else:
-                self.logger.info("Item[%s] code %s is in stock with %s quantity" % (index, code, 0))
+                self.logger.info(
+                    "Item[%s] code %s is in stock with %s quantity" % (index, code, 0)
+                )
                 yield {
                     "code": code,
                     "producer": producer,
@@ -72,7 +74,10 @@ class BestpartsSpider(scrapy.Spider):
             'meta[property="product:purchase_limit"]'
         ).attrib["content"]
 
-        self.logger.info("Item[%s] code %s is in stock with %s quantity" % (index, code, item_max_quantity))
+        self.logger.info(
+            "Item[%s] code %s is in stock with %s quantity"
+            % (index, code, item_max_quantity)
+        )
         yield {
             "code": code,
             "producer": producer,
@@ -83,4 +88,3 @@ class BestpartsSpider(scrapy.Spider):
     def error_418_restart(self, failure):
         request = failure.request
         yield request.copy()
-
